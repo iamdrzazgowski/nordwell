@@ -124,7 +124,7 @@ export function ChangePasswordDialog({ onChanged }: { onChanged: () => void }) {
                         </div>
                     </div>
 
-                    <DialogFooter>
+                    <DialogFooter className='m-0 flex-row justify-end gap-2 rounded-none px-6 py-4'>
                         <Button
                             type='button'
                             variant='outline'

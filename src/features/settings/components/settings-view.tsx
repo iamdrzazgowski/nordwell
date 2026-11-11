@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { Bell, Database, Shield, SlidersHorizontal, User } from 'lucide-react';
+import { Database, Shield, SlidersHorizontal, User } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -14,10 +14,7 @@ import {
     type Settings,
 } from '../types';
 import { DataSection } from './data-section';
-import {
-    isThresholdValid,
-    NotificationsSection,
-} from './notifications-section';
+
 import { PreferencesSection } from './preferences-section';
 import { isProfileValid, ProfileSection } from './profile-section';
 import { SecuritySection } from './security-section';
@@ -25,7 +22,7 @@ import { SecuritySection } from './security-section';
 const SECTIONS = [
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'preferences', label: 'Preferences', icon: SlidersHorizontal },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
+
     { id: 'security', label: 'Security', icon: Shield },
     { id: 'data', label: 'Data', icon: Database },
 ] as const satisfies readonly {
@@ -50,9 +47,7 @@ export function SettingsView() {
 
     const dirty = SECTIONS.some((s) => isSectionDirty(s.id));
 
-    const valid =
-        isProfileValid(draft) &&
-        (!draft.priceAlerts || isThresholdValid(draft.alertThreshold));
+    const valid = isProfileValid(draft);
 
     const handleSave = () => {
         if (!valid) return;
@@ -110,15 +105,7 @@ export function SettingsView() {
                     {active === 'preferences' && (
                         <PreferencesSection settings={draft} update={update} />
                     )}
-                    {active === 'notifications' && (
-                        <NotificationsSection
-                            settings={draft}
-                            update={update}
-                        />
-                    )}
-                    {active === 'security' && (
-                        <SecuritySection settings={draft} update={update} />
-                    )}
+                    {active === 'security' && <SecuritySection />}
                     {active === 'data' && <DataSection />}
                 </div>
 

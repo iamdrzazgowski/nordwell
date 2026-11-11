@@ -4,7 +4,7 @@ export type Currency = 'EUR' | 'USD' | 'GBP' | 'PLN';
 export type Language = 'en' | 'pl' | 'de';
 export type Theme = 'system' | 'light' | 'dark';
 export type NumberFormat = 'en' | 'eu';
-export type StatementFrequency = 'off' | 'monthly' | 'quarterly';
+
 
 export type Settings = {
     name: string;
@@ -16,21 +16,9 @@ export type Settings = {
     numberFormat: NumberFormat;
     defaultRange: Range;
 
-    priceAlerts: boolean;
-    alertThreshold: string;
-    dailySummary: boolean;
-    weeklyReport: boolean;
-    statements: StatementFrequency;
-
-    twoFactor: boolean;
 };
 
-export type SectionId =
-    | 'profile'
-    | 'preferences'
-    | 'notifications'
-    | 'security'
-    | 'data';
+export type SectionId = 'profile' | 'preferences' | 'security' | 'data';
 
 /** Which settings belong to which section — used for the "unsaved" dots. */
 export const SECTION_FIELDS: Record<SectionId, (keyof Settings)[]> = {
@@ -42,14 +30,7 @@ export const SECTION_FIELDS: Record<SectionId, (keyof Settings)[]> = {
         'numberFormat',
         'defaultRange',
     ],
-    notifications: [
-        'priceAlerts',
-        'alertThreshold',
-        'dailySummary',
-        'weeklyReport',
-        'statements',
-    ],
-    security: ['twoFactor'],
+    security: [],
     data: [],
 };
 
@@ -63,11 +44,4 @@ export const INITIAL_SETTINGS: Settings = {
     numberFormat: 'en',
     defaultRange: '1M',
 
-    priceAlerts: true,
-    alertThreshold: '5',
-    dailySummary: false,
-    weeklyReport: true,
-    statements: 'monthly',
-
-    twoFactor: true,
 };
