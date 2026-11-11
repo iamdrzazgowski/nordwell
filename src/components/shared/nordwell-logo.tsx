@@ -13,18 +13,17 @@ export function NordwellLogo({
 }: NordwellLogoProps) {
   return (
     <div
-      className={`relative flex items-center gap-2 ${className}`}
+      className={[
+        "relative flex items-center gap-2",
+        inverse ? "text-white" : "text-[#15151A] dark:text-white",
+        className,
+      ].join(" ")}
       aria-label="Nordwell"
     >
-      <NordwellMark inverse={inverse} />
+      <NordwellMark />
 
       {showText && (
-        <span
-          className={[
-            "text-[15px] font-semibold tracking-tight",
-            inverse ? "text-white" : "text-[#15151A]",
-          ].join(" ")}
-        >
+        <span className="text-[15px] font-semibold tracking-tight">
           Nordwell
         </span>
       )}
@@ -32,11 +31,7 @@ export function NordwellLogo({
   );
 }
 
-type NordwellMarkProps = {
-  inverse?: boolean;
-};
-
-function NordwellMark({ inverse = false }: NordwellMarkProps) {
+function NordwellMark() {
   return (
     <svg
       viewBox="0 0 30 24"
@@ -57,7 +52,7 @@ function NordwellMark({ inverse = false }: NordwellMarkProps) {
           C23.4 17.5 24.8 15.4 26 12.9
           C26.8 11.2 27.7 10.2 29 10.2
         "
-        stroke={inverse ? "#FFFFFF" : "#15151A"}
+        stroke="currentColor"
         strokeWidth="4.4"
         strokeLinecap="round"
         strokeLinejoin="round"
