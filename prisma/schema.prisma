@@ -24,6 +24,7 @@ model User {
   accounts      Account[]
 
   portfolio     Portfolio?
+  settings      UserSettings?
 
   @@unique([email])
   @@map("user")
@@ -88,6 +89,30 @@ enum AssetCategory {
 enum TransactionType {
   BUY
   SELL
+}
+
+enum Theme {
+  SYSTEM
+  LIGHT
+  DARK
+}
+
+// UserSettings — preferencje interfejsu usera (1:1 z User). Wiersz powstaje
+// leniwie przy pierwszym zapisie; brak wiersza = wartości domyślne.
+// `currency` jest duplikowane w Portfolio.baseCurrency (źródło prawdy dla
+// wycen) i zmieniane zawsze razem, w jednej transakcji.
+model UserSettings {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  currency String @default("USD")
+  theme    Theme  @default(SYSTEM)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_settings")
 }
 
 // Portfolio — 1:1 z Better Auth User. Osobny model, żeby dane finansowe

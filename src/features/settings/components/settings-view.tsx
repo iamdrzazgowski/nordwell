@@ -8,9 +8,12 @@ import { Button } from '@/components/ui/button';
 import { authClient, useSession } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 
+import { updatePreferencesAction } from '@/actions/settings.actions';
+import { applyTheme } from '@/components/shared/theme';
+
 import {
-    INITIAL_SETTINGS,
     SECTION_FIELDS,
+    type Preferences,
     type SectionId,
     type Settings,
 } from '../types';
@@ -32,11 +35,16 @@ const SECTIONS = [
     icon: React.ComponentType<{ size?: number; strokeWidth?: number }>;
 }[];
 
-export function SettingsView() {
+export function SettingsView({
+    initialPreferences,
+}: {
+    initialPreferences: Preferences;
+}) {
+    const initialSettings: Settings = { name: '', ...initialPreferences };
     const [savedSettings, setSavedSettings] =
-        useState<Settings>(INITIAL_SETTINGS);
+        useState<Settings>(initialSettings);
     const [draftSettings, setDraftSettings] =
-        useState<Settings>(INITIAL_SETTINGS);
+        useState<Settings>(initialSettings);
     const [active, setActive] = useState<SectionId>('profile');
     const [justSaved, setJustSaved] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -87,11 +95,27 @@ export function SettingsView() {
                 setSaving(false);
                 return;
             }
+            setSavedNameOverride(name);
+            setDraftName(name);
+        }
+
+        if (
+            draft.currency !== saved.currency ||
+            draft.theme !== saved.theme
+        ) {
+            const result = await updatePreferencesAction({
+                currency: draft.currency,
+                theme: draft.theme,
+            });
+            if (!result.success) {
+                setError(result.error ?? 'Could not save preferences.');
+                setSaving(false);
+                return;
+            }
+            applyTheme(draft.theme);
         }
 
         setSavedSettings(draft);
-        setSavedNameOverride(name);
-        setDraftName(name);
         setJustSaved(true);
         setSaving(false);
     };

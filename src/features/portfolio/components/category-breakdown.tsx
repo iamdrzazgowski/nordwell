@@ -1,16 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Delta } from '@/components/shared/delta';
 import { CATEGORY_COLORS, type Category, type EnrichedHolding } from '@/lib/data';
-import { fmtEUR } from '@/lib/format';
+import { fmtCurrency } from '@/lib/format';
 
 export function CategoryBreakdown({
     enriched,
     cash,
     totalValue,
+    currency,
 }: {
     enriched: EnrichedHolding[];
     cash: number;
     totalValue: number;
+    currency: string;
 }) {
     const cats = (['Stocks', 'ETFs', 'Crypto', 'Cash'] as Category[]).map(
         (cat) => {
@@ -55,7 +57,7 @@ export function CategoryBreakdown({
                                         : `${c.count} position${c.count === 1 ? '' : 's'}`}
                                 </span>
                                 <span className='font-mono font-semibold'>
-                                    {fmtEUR(c.value)}
+                                    {fmtCurrency(c.value, currency)}
                                 </span>
                                 {c.cat !== 'Cash' ? (
                                     <Delta value={c.plPct} size='sm' />

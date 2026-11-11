@@ -19,7 +19,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-export function AddFundsDialog() {
+export function AddFundsDialog({ currency }: { currency: string }) {
     const [amount, setAmount] = useState('');
     const [open, setOpen] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -75,7 +75,7 @@ export function AddFundsDialog() {
                         <Label
                             htmlFor='amount'
                             className='mb-2 block font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground'>
-                            Amount (USD)
+                            Amount ({currency})
                         </Label>
 
                         <Input

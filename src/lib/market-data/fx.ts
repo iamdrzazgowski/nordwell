@@ -63,6 +63,24 @@ export async function getFxRate(from: string, to: string): Promise<number | null
     }
 }
 
+/**
+ * FX rates from each of several currencies into `base` at once. Falls back to 1
+ * when a rate is unavailable, so display code degrades instead of failing.
+ */
+export async function getRatesToCurrency(
+    currencies: Iterable<string>,
+    base: string,
+): Promise<Map<string, number>> {
+    const unique = [...new Set(currencies)];
+    const entries = await Promise.all(
+        unique.map(async (currency) => {
+            const rate = await getFxRate(currency, base);
+            return [currency, rate != null && rate > 0 ? rate : 1] as const;
+        }),
+    );
+    return new Map(entries);
+}
+
 /** Convert `amount` from one currency to another with a given rate. */
 export function convertWithRate(amount: number, rate: number): number {
     return amount * rate;

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AvatarBadge } from '@/components/shared/avatar-badge';
 import { Delta } from '@/components/shared/delta';
-import { fmtEUR } from '@/lib/format';
+import { fmtCurrency } from '@/lib/format';
 import type { Category } from '@/lib/data';
 
 export interface TopMoverItem {
@@ -20,11 +20,13 @@ type TopMover = TopMoverItem;
 function Col({
     title,
     rows,
+    currency,
     emptyMessage,
     onSelect,
 }: {
     title: string;
     rows: TopMover[];
+    currency: string;
     emptyMessage: string;
     onSelect: (ticker: string) => void;
 }) {
@@ -54,7 +56,7 @@ function Col({
                                 </div>
 
                                 <div className='font-mono text-[11.5px] text-muted-foreground'>
-                                    {fmtEUR(h.price)}
+                                    {fmtCurrency(h.price, currency)}
                                 </div>
                             </div>
                         </div>
@@ -68,7 +70,13 @@ function Col({
     );
 }
 
-export function TopMovers({ movers }: { movers: TopMoverItem[] }) {
+export function TopMovers({
+    movers,
+    currency,
+}: {
+    movers: TopMoverItem[];
+    currency: string;
+}) {
     const router = useRouter();
     const sorted = movers.toSorted((a, b) => b.day - a.day);
 
@@ -103,12 +111,14 @@ export function TopMovers({ movers }: { movers: TopMoverItem[] }) {
                 <Col
                     title='Gainers'
                     rows={gainers}
+                    currency={currency}
                     emptyMessage='No gainers today.'
                     onSelect={(t) => router.push(`/asset/${t}`)}
                 />
                 <Col
                     title='Losers'
                     rows={losers}
+                    currency={currency}
                     emptyMessage='No losers today.'
                     onSelect={(t) => router.push(`/asset/${t}`)}
                 />

@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import { IBM_Plex_Mono, Space_Grotesk } from 'next/font/google';
+import { THEME_INIT_SCRIPT, ThemeSync } from '@/components/shared/theme';
 import './globals.css';
 
 const fontSans = Space_Grotesk({
@@ -27,8 +29,18 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
     return (
         <html
             lang='en'
+            suppressHydrationWarning
             className={`${fontSans.variable} ${fontMono.variable} h-full antialiased`}>
-            <body className='min-h-full flex flex-col'>{children}</body>
+
+            <body className='min-h-full flex flex-col'>
+                            <Script
+                                id='theme-init'
+                                strategy='beforeInteractive'
+                                dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
+                            />
+                            <ThemeSync />
+                            {children}
+                        </body>
         </html>
     );
 }

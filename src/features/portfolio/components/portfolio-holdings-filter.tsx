@@ -8,8 +8,10 @@ import type { Category, EnrichedHolding } from '@/lib/data';
 
 export function PortfolioHoldingsFilter({
     enriched,
+    currency,
 }: {
     enriched: EnrichedHolding[];
+    currency: string;
 }) {
     const [filter, setFilter] = React.useState<Category | 'All'>('All');
 
@@ -31,7 +33,7 @@ export function PortfolioHoldingsFilter({
                 </TabsList>
             </Tabs>
 
-            <HoldingsTable rows={rows} />
+            <HoldingsTable rows={rows} currency={currency} />
         </>
     );
 }

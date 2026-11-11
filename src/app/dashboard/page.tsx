@@ -10,6 +10,7 @@ import { TopMovers } from '@/features/portfolio/components/top-movers';
 import { fmtCurrency, fmtSignedCurrency } from '@/lib/format';
 import { requirePortfolio } from '@/lib/auth-helpers';
 import { toCategory } from '@/lib/asset-category';
+import { getRatesToCurrency } from '@/lib/market-data/fx';
 import { valuePortfolio } from '@/lib/portfolio-valuation';
 import { getHoldingsByPortfolio } from '@/lib/repositories/holding.repository';
 import { getSnapshotPoints } from '@/lib/repositories/portfolio-snapshot.repository';
@@ -44,6 +45,10 @@ export default async function DashboardPage() {
         { strictFx: false },
     );
     const currency = portfolio.baseCurrency;
+    const rates = await getRatesToCurrency(
+        dbHoldings.map((h) => h.asset.currency),
+        currency,
+    );
     const pl = valuation.holdingsValue - valuation.investedValue;
     const plPct =
         valuation.investedValue > 0 ? (pl / valuation.investedValue) * 100 : 0;
@@ -54,11 +59,12 @@ export default async function DashboardPage() {
 
     const previewHoldings: HoldingPreviewItem[] = dbHoldings
         .map((h) => {
+            const rate = rates.get(h.asset.currency) ?? 1;
             const shares = h.shares.toNumber();
-            const avg = h.avgCost.toNumber();
+            const avg = h.avgCost.toNumber() * rate;
             const price =
                 h.asset.lastPrice != null
-                    ? Number(h.asset.lastPrice)
+                    ? Number(h.asset.lastPrice) * rate
                     : avg;
             const value = shares * price;
             const invested = shares * avg;
@@ -86,6 +92,7 @@ export default async function DashboardPage() {
             type: tx.type === 'BUY' ? 'buy' : 'sell',
             qty: tx.quantity.toNumber(),
             price: tx.price.toNumber(),
+            currency: tx.asset.currency,
         }),
     );
 
@@ -93,9 +100,9 @@ export default async function DashboardPage() {
         t: h.asset.ticker,
         cat: toCategory(h.asset.category),
         price:
-            h.asset.lastPrice != null
+            (h.asset.lastPrice != null
                 ? Number(h.asset.lastPrice)
-                : h.avgCost.toNumber(),
+                : h.avgCost.toNumber()) * (rates.get(h.asset.currency) ?? 1),
         day: h.asset.dayChangePercent
             ? Number(h.asset.dayChangePercent)
             : 0,
@@ -109,8 +116,12 @@ export default async function DashboardPage() {
             h.asset.lastPrice != null
                 ? Number(h.asset.lastPrice)
                 : h.avgCost.toNumber();
+        const rate = rates.get(h.asset.currency) ?? 1;
         const cat = toCategory(h.asset.category);
-        valueByCat.set(cat, (valueByCat.get(cat) ?? 0) + shares * price);
+        valueByCat.set(
+            cat,
+            (valueByCat.get(cat) ?? 0) + shares * price * rate,
+        );
     }
     valueByCat.set('Cash', cash);
     const allocationTotal = [...valueByCat.values()].reduce(
@@ -151,7 +162,7 @@ export default async function DashboardPage() {
                         </span>
                     </div>
                 </div>
-                <AddFundsDialog />
+                <AddFundsDialog currency={currency} />
             </section>
 
             <div className='space-y-6 md:space-y-8'>
@@ -173,13 +184,16 @@ export default async function DashboardPage() {
                 />
 
                 <div className='grid gap-6 md:gap-8 lg:grid-cols-[1.55fr_1fr]'>
-                    <HoldingsPreview holdings={previewHoldings} />
+                    <HoldingsPreview
+                                            holdings={previewHoldings}
+                                            currency={currency}
+                                        />
                     <AllocationDonut allocation={allocation} />
                 </div>
 
                 <div className='grid gap-6 md:gap-8 lg:grid-cols-[1.55fr_1fr]'>
                     <RecentTransactions transactions={previewTransactions} />
-                    <TopMovers movers={topMovers} />
+                    <TopMovers movers={topMovers} currency={currency} />
                 </div>
             </div>
         </AppShell>

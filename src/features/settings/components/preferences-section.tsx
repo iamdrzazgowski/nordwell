@@ -1,6 +1,5 @@
 'use client';
 
-
 import type { Settings } from '../types';
 import { Segmented, SelectField } from './controls';
 import { SettingRow, SettingsSection } from './setting-row';
@@ -8,7 +7,6 @@ import { SettingRow, SettingsSection } from './setting-row';
 const CURRENCIES = [
     { value: 'EUR', label: 'EUR (€)' },
     { value: 'USD', label: 'USD ($)' },
-    { value: 'GBP', label: 'GBP (£)' },
     { value: 'PLN', label: 'PLN (zł)' },
 ] as const;
 
@@ -31,10 +29,10 @@ export function PreferencesSection({
         <SettingsSection
             eyebrow='Interface'
             title='Preferences'
-            description='Currency, formatting and how Nordwell looks.'>
+            description='Currency and how Nordwell looks.'>
             <SettingRow
                 title='Display currency'
-                description='All values are converted to this currency.'
+                description='Portfolio values, cash and charts are shown in this currency.'
                 htmlFor='settings-currency'>
                 <SelectField
                     id='settings-currency'

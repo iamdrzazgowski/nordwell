@@ -1,5 +1,8 @@
-export type Currency = 'EUR' | 'USD' | 'GBP' | 'PLN';
-export type Theme = 'system' | 'light' | 'dark';
+export const CURRENCIES = ['EUR', 'USD', 'PLN'] as const;
+export const THEMES = ['system', 'light', 'dark'] as const;
+
+export type Currency = (typeof CURRENCIES)[number];
+export type Theme = (typeof THEMES)[number];
 
 export type Settings = {
     name: string;
@@ -7,6 +10,8 @@ export type Settings = {
     currency: Currency;
     theme: Theme;
 };
+
+export type Preferences = Pick<Settings, 'currency' | 'theme'>;
 
 export type SectionId = 'profile' | 'preferences' | 'security' | 'data';
 
@@ -18,9 +23,11 @@ export const SECTION_FIELDS: Record<SectionId, (keyof Settings)[]> = {
     data: [],
 };
 
-export const INITIAL_SETTINGS: Settings = {
-    name: '',
-
-    currency: 'EUR',
+export const DEFAULT_PREFERENCES: Preferences = {
+    currency: 'USD',
     theme: 'system',
 };
+
+export function isCurrency(value: string): value is Currency {
+    return (CURRENCIES as readonly string[]).includes(value);
+}

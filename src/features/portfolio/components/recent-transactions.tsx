@@ -6,7 +6,7 @@ import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { AvatarBadge } from '@/components/shared/avatar-badge';
 import type { Category } from '@/lib/data';
-import { fmtEUR, fmtNum } from '@/lib/format';
+import { fmtCurrency, fmtNum } from '@/lib/format';
 
 export interface RecentTransactionItem {
     id: string;
@@ -17,6 +17,8 @@ export interface RecentTransactionItem {
     type: 'buy' | 'sell';
     qty: number;
     price: number;
+    /** Currency the price is quoted in (the asset's own currency). */
+    currency: string;
 }
 
 export function RecentTransactions({
@@ -71,7 +73,7 @@ export function RecentTransactions({
                                 </div>
                                 <div className='flex shrink-0 items-center gap-2'>
                                     <span className='font-mono text-[13px] font-semibold'>
-                                        {fmtEUR(tx.qty * tx.price)}
+                                        {fmtCurrency(tx.qty * tx.price, tx.currency)}
                                     </span>
                                     <Badge
                                         variant={

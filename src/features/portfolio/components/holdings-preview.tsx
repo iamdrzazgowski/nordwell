@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AvatarBadge } from '@/components/shared/avatar-badge';
 import { Delta } from '@/components/shared/delta';
-import { fmtEUR, fmtSigned } from '@/lib/format';
+import { fmtCurrency, fmtSignedCurrency } from '@/lib/format';
 import type { Category } from '@/lib/data';
 
 export interface HoldingPreviewItem {
@@ -18,7 +18,13 @@ export interface HoldingPreviewItem {
     plPct: number;
 }
 
-export function HoldingsPreview({ holdings }: { holdings: HoldingPreviewItem[] }) {
+export function HoldingsPreview({
+    holdings,
+    currency,
+}: {
+    holdings: HoldingPreviewItem[];
+    currency: string;
+}) {
     const router = useRouter();
 
     return (
@@ -59,11 +65,11 @@ export function HoldingsPreview({ holdings }: { holdings: HoldingPreviewItem[] }
                             </div>
                             <div className='shrink-0 text-right'>
                                 <div className='font-mono text-[13px] font-semibold tabular-nums'>
-                                    {fmtEUR(h.value)}
+                                    {fmtCurrency(h.value, currency)}
                                 </div>
                                 <div className='mt-0.5 flex items-center justify-end gap-1.5'>
                                     <span className='font-mono text-[11.5px] text-muted-foreground'>
-                                        {fmtSigned(h.pl)}
+                                        {fmtSignedCurrency(h.pl, currency)}
                                     </span>
                                     <Delta value={h.plPct} size='sm' />
                                 </div>

@@ -12,14 +12,16 @@ import {
 } from '@/components/ui/table';
 import { AvatarBadge } from '@/components/shared/avatar-badge';
 import { Delta } from '@/components/shared/delta';
-import { fmtEUR, fmtNum, fmtSigned } from '@/lib/format';
+import { fmtCurrency, fmtNum, fmtSignedCurrency } from '@/lib/format';
 import type { EnrichedHolding } from '@/lib/data';
 
 export function HoldingsTable({
     rows,
+    currency,
     title = 'Holdings',
 }: {
     rows: EnrichedHolding[];
+    currency: string;
     title?: string;
 }) {
     const router = useRouter();
@@ -83,17 +85,17 @@ export function HoldingsTable({
                                         )}
                                     </TableCell>
                                     <TableCell className='text-right font-mono'>
-                                        {fmtEUR(h.price)}
+                                        {fmtCurrency(h.price, currency)}
                                     </TableCell>
                                     <TableCell className='text-right font-mono'>
-                                        {fmtEUR(h.avg)}
+                                        {fmtCurrency(h.avg, currency)}
                                     </TableCell>
                                     <TableCell className='text-right font-mono'>
-                                        {fmtEUR(h.value)}
+                                        {fmtCurrency(h.value, currency)}
                                     </TableCell>
                                     <TableCell className='text-right'>
                                         <div className='font-mono'>
-                                            {fmtSigned(h.pl)}
+                                            {fmtSignedCurrency(h.pl, currency)}
                                         </div>
                                         <Delta value={h.plPct} size='sm' />
                                     </TableCell>
