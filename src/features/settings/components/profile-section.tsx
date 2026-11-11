@@ -5,10 +5,8 @@ import { Input } from '@/components/ui/input';
 import type { Settings } from '../types';
 import { SettingRow, SettingsSection } from './setting-row';
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-export function isProfileValid(s: Pick<Settings, 'name' | 'email'>) {
-    return s.name.trim().length > 0 && EMAIL_RE.test(s.email.trim());
+export function isProfileValid(s: Pick<Settings, 'name'>) {
+    return s.name.trim().length > 0;
 }
 
 function initials(name: string) {
@@ -22,14 +20,16 @@ const inputClass =
 
 export function ProfileSection({
     settings,
+    email,
+    loading,
     update,
 }: {
     settings: Settings;
+    email: string;
+    loading: boolean;
     update: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
 }) {
-    const emailInvalid =
-        settings.email.length > 0 && !EMAIL_RE.test(settings.email.trim());
-    const nameInvalid = settings.name.length > 0 && !settings.name.trim();
+    const nameInvalid = !loading && !settings.name.trim();
 
     return (
         <SettingsSection
@@ -47,7 +47,7 @@ export function ProfileSection({
                         {settings.name.trim() || 'Unnamed'}
                     </p>
                     <p className='truncate font-mono text-[12px] text-muted-foreground'>
-                        {settings.email || 'No email'}
+                        {email || (loading ? '…' : 'No email')}
                     </p>
                 </div>
             </div>
@@ -58,6 +58,7 @@ export function ProfileSection({
                         id='settings-name'
                         value={settings.name}
                         onChange={(e) => update('name', e.target.value)}
+                        disabled={loading}
                         autoComplete='name'
                         aria-invalid={nameInvalid || undefined}
                         className={inputClass}
@@ -67,23 +68,18 @@ export function ProfileSection({
 
             <SettingRow
                 title='Email'
-                description='Used for sign-in, alerts and statements.'
+                description='Used for sign-in. Cannot be changed here.'
                 htmlFor='settings-email'>
                 <div className='w-full'>
                     <Input
                         id='settings-email'
                         type='email'
-                        value={settings.email}
-                        onChange={(e) => update('email', e.target.value)}
+                        value={email}
+                        readOnly
+                        disabled
                         autoComplete='email'
-                        aria-invalid={emailInvalid || undefined}
                         className={inputClass}
                     />
-                    {emailInvalid && (
-                        <p className='mt-1 text-[12px] text-destructive'>
-                            Enter a valid email address.
-                        </p>
-                    )}
                 </div>
             </SettingRow>
         </SettingsSection>

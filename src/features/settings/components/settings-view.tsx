@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Database, Shield, SlidersHorizontal, User } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { authClient, useSession } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 
 import {
@@ -32,14 +33,38 @@ const SECTIONS = [
 }[];
 
 export function SettingsView() {
-    const [saved, setSaved] = useState<Settings>(INITIAL_SETTINGS);
-    const [draft, setDraft] = useState<Settings>(INITIAL_SETTINGS);
+    const [savedSettings, setSavedSettings] =
+        useState<Settings>(INITIAL_SETTINGS);
+    const [draftSettings, setDraftSettings] =
+        useState<Settings>(INITIAL_SETTINGS);
     const [active, setActive] = useState<SectionId>('profile');
     const [justSaved, setJustSaved] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const { data: session, isPending } = useSession();
+    const email = session?.user.email ?? '';
+
+    // The name lives in the session; derive it instead of copying into state.
+    const [savedNameOverride, setSavedNameOverride] = useState<string | null>(
+        null,
+    );
+    const [draftName, setDraftName] = useState<string | null>(null);
+    const savedName = savedNameOverride ?? session?.user.name ?? '';
+
+    const saved: Settings = { ...savedSettings, name: savedName };
+    const draft: Settings = {
+        ...draftSettings,
+        name: draftName ?? savedName,
+    };
 
     const update = <K extends keyof Settings>(key: K, value: Settings[K]) => {
         setJustSaved(false);
-        setDraft((prev) => ({ ...prev, [key]: value }));
+        if (key === 'name') {
+            setDraftName(value as string);
+            return;
+        }
+        setDraftSettings((prev) => ({ ...prev, [key]: value }));
     };
 
     const isSectionDirty = (id: SectionId) =>
@@ -49,13 +74,33 @@ export function SettingsView() {
 
     const valid = isProfileValid(draft);
 
-    const handleSave = () => {
-        if (!valid) return;
-        setSaved(draft);
+    const handleSave = async () => {
+        if (!valid || saving) return;
+        setSaving(true);
+        setError(null);
+
+        const name = draft.name.trim();
+        if (name !== saved.name) {
+            const { error } = await authClient.updateUser({ name });
+            if (error) {
+                setError(error.message ?? 'Could not save changes.');
+                setSaving(false);
+                return;
+            }
+        }
+
+        setSavedSettings(draft);
+        setSavedNameOverride(name);
+        setDraftName(name);
         setJustSaved(true);
+        setSaving(false);
     };
 
-    const handleDiscard = () => setDraft(saved);
+    const handleDiscard = () => {
+        setError(null);
+        setDraftSettings(savedSettings);
+        setDraftName(null);
+    };
 
     return (
         <div className='grid gap-8 lg:grid-cols-12 lg:gap-6'>
@@ -100,7 +145,12 @@ export function SettingsView() {
             <div className='min-w-0 lg:col-span-9'>
                 <div key={active} className='animate-in fade-in-0 duration-150'>
                     {active === 'profile' && (
-                        <ProfileSection settings={draft} update={update} />
+                        <ProfileSection
+                            settings={draft}
+                            email={email}
+                            loading={isPending}
+                            update={update}
+                        />
                     )}
                     {active === 'preferences' && (
                         <PreferencesSection settings={draft} update={update} />
@@ -117,9 +167,11 @@ export function SettingsView() {
                             {dirty ? (
                                 <>
                                     <p className='text-[13px] text-muted-foreground'>
-                                        {valid
-                                            ? 'You have unsaved changes.'
-                                            : 'Fix the highlighted fields to save.'}
+                                        {error
+                                            ? error
+                                            : valid
+                                              ? 'You have unsaved changes.'
+                                              : 'Fix the highlighted fields to save.'}
                                     </p>
                                     <div className='flex shrink-0 items-center gap-2'>
                                         <Button
@@ -128,7 +180,7 @@ export function SettingsView() {
                                             Discard
                                         </Button>
                                         <Button
-                                            disabled={!valid}
+                                            disabled={!valid || saving}
                                             onClick={handleSave}>
                                             Save changes
                                         </Button>

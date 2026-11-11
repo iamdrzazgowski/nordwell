@@ -8,7 +8,6 @@ export type NumberFormat = 'en' | 'eu';
 
 export type Settings = {
     name: string;
-    email: string;
 
     currency: Currency;
     language: Language;
@@ -22,7 +21,7 @@ export type SectionId = 'profile' | 'preferences' | 'security' | 'data';
 
 /** Which settings belong to which section — used for the "unsaved" dots. */
 export const SECTION_FIELDS: Record<SectionId, (keyof Settings)[]> = {
-    profile: ['name', 'email'],
+    profile: ['name'],
     preferences: [
         'currency',
         'language',
@@ -35,8 +34,7 @@ export const SECTION_FIELDS: Record<SectionId, (keyof Settings)[]> = {
 };
 
 export const INITIAL_SETTINGS: Settings = {
-    name: 'Adrian Kowalski',
-    email: 'adrian@example.com',
+    name: '',
 
     currency: 'EUR',
     language: 'en',
